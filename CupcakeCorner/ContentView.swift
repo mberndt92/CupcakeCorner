@@ -8,14 +8,44 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @StateObject var order = Order()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationView {
+            Form {
+                Section {
+                    Picker("Select your cake type", selection: $order.type) {
+                        ForEach(Order.types.indices, id: \.self) {
+                            Text(Order.types[$0])
+                        }
+                    }
+                    
+                    Stepper("Number of cakes: \(order.quantity)", value: $order.quantity, in: 1...20)
+                }
+                
+                // Note: weirdly enough re-enabling any special request after resetting the values for frosting / sprinkles causes a weird toggle off animation for those fields instead of simply being off
+                Section {
+                    Toggle("Any special request?", isOn: $order.specialRequestEnabled.animation())
+                    
+                    if order.specialRequestEnabled {
+                        Toggle("Add extra frosting", isOn: $order.extraFrosting)
+                    }
+                    
+                    if order.specialRequestEnabled {
+                        Toggle("Add extra sprinkles", isOn: $order.addSprinkles)
+                    }
+                }
+                
+                Section {
+                    NavigationLink {
+                        AddressView(order: order)
+                    } label: {
+                        Text("Delivery details")
+                    }
+                }
+            }
         }
-        .padding()
     }
 }
 
