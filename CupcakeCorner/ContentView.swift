@@ -15,25 +15,25 @@ struct ContentView: View {
         NavigationView {
             Form {
                 Section {
-                    Picker("Select your cake type", selection: $order.type) {
-                        ForEach(Order.types.indices, id: \.self) {
-                            Text(Order.types[$0])
+                    Picker("Select your cake type", selection: $order.orderData.type) {
+                        ForEach(OrderData.types.indices, id: \.self) {
+                            Text(OrderData.types[$0])
                         }
                     }
                     
-                    Stepper("Number of cakes: \(order.quantity)", value: $order.quantity, in: 1...20)
+                    Stepper("Number of cakes: \(order.orderData.quantity)", value: $order.orderData.quantity, in: 1...20)
                 }
                 
                 // Note: weirdly enough re-enabling any special request after resetting the values for frosting / sprinkles causes a weird toggle off animation for those fields instead of simply being off
                 Section {
-                    Toggle("Any special request?", isOn: $order.specialRequestEnabled.animation())
+                    Toggle("Any special request?", isOn: $order.orderData.specialRequestEnabled.animation())
                     
-                    if order.specialRequestEnabled {
-                        Toggle("Add extra frosting", isOn: $order.extraFrosting)
+                    if order.orderData.specialRequestEnabled {
+                        Toggle("Add extra frosting", isOn: $order.orderData.extraFrosting)
                     }
                     
-                    if order.specialRequestEnabled {
-                        Toggle("Add extra sprinkles", isOn: $order.addSprinkles)
+                    if order.orderData.specialRequestEnabled {
+                        Toggle("Add extra sprinkles", isOn: $order.orderData.addSprinkles)
                     }
                 }
                 

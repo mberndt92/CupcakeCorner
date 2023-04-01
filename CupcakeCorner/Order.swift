@@ -9,108 +9,57 @@ import SwiftUI
 
 class Order: ObservableObject, Codable {
     
-    enum CodingKeys: CodingKey {
-        case type
-        case quantity
-        case extraFrosting
-        case addSprinkles
-        case name
-        case streetAddress
-        case city
-        case zip
-    }
-    
     static var test: Order {
         return Order()
     }
-    // TODO: future improvement
-//    enum Types {
-//        case Vanilla
-//        case Strawberry
-//        case Chocolate
-//        case Rainbow
-//    }
-//
-//    @Published var type = Types.Vanilla
     
-    static let types = ["Vanilla", "Strawberry", "Chocolate", "Rainbow"]
-    @Published var type = 0
+    @Published var orderData = OrderData()
     
-    @Published var quantity = 3
-    
-    @Published var specialRequestEnabled = false {
-        didSet {
-            if specialRequestEnabled == false {
-                extraFrosting = false
-                addSprinkles = false
-            }
-        }
+    enum CodingKeys: CodingKey {
+        case orderData
     }
-    @Published var extraFrosting = false
-    @Published var addSprinkles = false
     
-    @Published var name = ""
-    @Published var streetAddress = ""
-    @Published var city = ""
-    @Published var zip = ""
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(orderData, forKey: .orderData)
+    }
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        orderData = try container.decode(OrderData.self, forKey: .orderData)
+    }
+    
+    init() { }
     
     var hasValidAddress: Bool {
-        let hasEmptyField = name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-        streetAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-        city.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-        zip.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasEmptyField = orderData.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+        orderData.streetAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+        orderData.city.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+        orderData.zip.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         
         return hasEmptyField == false
     }
     
     var cost: Double {
         // $2 per cake
-        var cost = Double(quantity) * 2
+        var cost = Double(orderData.quantity) * 2
         
         // complicated cakes cost more
-        cost += (Double(type) / 2)
+        cost += (Double(orderData.type) / 2)
         
         // $1 / cake for extra frosting
-        if extraFrosting {
-            cost += Double(quantity)
+        if orderData.extraFrosting {
+            cost += Double(orderData.quantity)
         }
         
         // $0.50 / cake for sprinkles
-        if addSprinkles {
-            cost += Double(quantity) / 2
+        if orderData.addSprinkles {
+            cost += Double(orderData.quantity) / 2
         }
         
         return cost
     }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        try container.encode(type, forKey: .type)
-        try container.encode(quantity, forKey: .quantity)
-        try container.encode(extraFrosting, forKey: .extraFrosting)
-        try container.encode(addSprinkles, forKey: .addSprinkles)
-        
-        try container.encode(name, forKey: .name)
-        try container.encode(streetAddress, forKey: .streetAddress)
-        try container.encode(city, forKey: .city)
-        try container.encode(zip, forKey: .zip)
-    }
-    
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        type = try container.decode(Int.self, forKey: .type)
-        quantity = try container.decode(Int.self, forKey: .quantity)
-        extraFrosting = try container.decode(Bool.self, forKey: .extraFrosting)
-        addSprinkles = try container.decode(Bool.self, forKey: .addSprinkles)
-        
-        name = try container.decode(String.self, forKey: .name)
-        streetAddress = try container.decode(String.self, forKey: .streetAddress)
-        city = try container.decode(String.self, forKey: .city)
-        zip = try container.decode(String.self, forKey: .zip)
-    }
-    
-    init() { }
 }
 
